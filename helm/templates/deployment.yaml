@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name:  github-to-azure
+  namespace: default
+  labels:
+    app:  github-to-azure
+spec:
+  selector:
+    matchLabels:
+      app: github-to-azure
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app:  github-to-azure
+    spec:
+      containers:
+      - name:  web
+        image:  "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+          limits:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort:  80
+          name:  github-to-azure
+      restartPolicy: Always
