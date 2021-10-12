@@ -20,3 +20,20 @@ jobs:
       run: |
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/github-to-azure:${{ github.sha }} .
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/github-to-azure:${{ github.sha }}
+
+  k8s:
+    needs: [ "docker" ]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout 
+      uses: actions/checkout@v2
+    - name: Install Helm
+      uses: azure/setup-helm@v1
+    - name: Set K8s context
+      uses: azure/k8s-set-context@v1
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+    - name: Install helm release
+      run: |
+        helm upgrade demo-live helm/ -f helm/values.yaml --set image.tag=${{ github.sha }} --install
